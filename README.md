@@ -10,7 +10,7 @@
 * 特定格式的程序日志
 * 特定格式的访问日志
 * 特定格式的程序慢日志
-* 针对influxdb存储的influxdb客户端和statsd客户端
+* 针对influxdb存储的influxdb数据采集客户端和statsd数据采集客户端
 
 ## 使用说明
 
