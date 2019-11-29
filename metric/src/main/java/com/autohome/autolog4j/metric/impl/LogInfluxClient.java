@@ -2,6 +2,7 @@ package com.autohome.autolog4j.metric.impl;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 
 import com.autohome.autolog4j.exception.MetricCollectException;
 import com.autohome.autolog4j.exception.annotation.ExceptionWrapper;
@@ -10,22 +11,20 @@ import com.autohome.autolog4j.metric.contract.InfluxPoint;
 import com.autohome.autolog4j.metric.contract.MetricBaseInfo;
 import com.autohome.autolog4j.metric.utils.MetricUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by NFW on 2018/8/2.
  */
 @ExceptionWrapper(toType = MetricCollectException.class)
 public class LogInfluxClient implements IInfluxClient {
-    private Logger client;
+    private Consumer<String> sendSink;
     private Map<String, String> commonTags = new TreeMap<>();
 
     private LogInfluxClient() {
     }
 
-    public static LogInfluxClient.Builder client(final String loggerName) {
-        return new LogInfluxClient.Builder(loggerName);
+    public static LogInfluxClient.Builder client(Consumer<String> sendSink) {
+        return new LogInfluxClient.Builder(sendSink);
     }
 
     @Override
@@ -36,14 +35,14 @@ public class LogInfluxClient implements IInfluxClient {
     @Override
     public void write(String line) {
         try {
-            client.trace(line);
+            sendSink.accept(line);
         } catch (Exception e) {
             throw new MetricCollectException("Error when sending metrics ", e);
         }
     }
 
-    public void setClient(Logger client) {
-        this.client = client;
+    public void setSendSink(Consumer<String> sendSink) {
+        this.sendSink = sendSink;
     }
 
     public Map<String, String> getCommonTags() {
@@ -55,15 +54,14 @@ public class LogInfluxClient implements IInfluxClient {
     }
 
     public static final class Builder {
-        private final Logger client;
+        private final Consumer<String> sendSink;
         private final Map<String, String> commonTags = new TreeMap<>();
 
         /**
-         * @param loggerName the loggerName to set
+         * @param sendSink the sendSink to set
          */
-        Builder(final String loggerName) {
-            MetricUtil.validateNotNull(loggerName, "loggerName");
-            this.client = LoggerFactory.getLogger(loggerName);
+        Builder(Consumer<String> sendSink) {
+            this.sendSink = sendSink;
         }
 
         /**
@@ -72,7 +70,7 @@ public class LogInfluxClient implements IInfluxClient {
          * @param metricBaseInfo the client baseInfo name
          * @return the Builder instance.
          */
-        public Builder commonTag(final MetricBaseInfo metricBaseInfo) {
+        public Builder commonTag(MetricBaseInfo metricBaseInfo) {
             MetricUtil.validateNotNull(metricBaseInfo, "metricBaseInfo");
             if (!StringUtils.isEmpty(metricBaseInfo.getDepartment())) {
                 commonTags.put("department", metricBaseInfo.getDepartment());
@@ -98,7 +96,7 @@ public class LogInfluxClient implements IInfluxClient {
          * @param tagsToAdd the Map of tags to add
          * @return the Builder instance.
          */
-        public Builder commonTag(final Map<String, String> tagsToAdd) {
+        public Builder commonTag(Map<String, String> tagsToAdd) {
             MetricUtil.validateNotNull(tagsToAdd, "tagsToAdd");
             for (Map.Entry<String, String> tag : tagsToAdd.entrySet()) {
                 commonTag(tag.getKey(), tag.getValue());
@@ -113,7 +111,7 @@ public class LogInfluxClient implements IInfluxClient {
          * @param value   the tag value
          * @return the Builder instance.
          */
-        public Builder commonTag(final String tagName, final String value) {
+        public Builder commonTag(String tagName, String value) {
             MetricUtil.validateNotNull(tagName, "tagName");
             MetricUtil.validateNotNull(value, "value");
             commonTags.put(tagName, value);
@@ -127,7 +125,7 @@ public class LogInfluxClient implements IInfluxClient {
          */
         public LogInfluxClient build() {
             LogInfluxClient logStatsdClient = new LogInfluxClient();
-            logStatsdClient.setClient(client);
+            logStatsdClient.setSendSink(sendSink);
             logStatsdClient.setCommonTags(commonTags);
             return logStatsdClient;
         }

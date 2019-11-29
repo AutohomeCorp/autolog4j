@@ -2,6 +2,7 @@ package com.autohome.autolog4j.metric.impl;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 
 import com.autohome.autolog4j.exception.MetricCollectException;
 import com.autohome.autolog4j.exception.annotation.ExceptionWrapper;
@@ -10,23 +11,21 @@ import com.autohome.autolog4j.metric.contract.MetricBaseInfo;
 import com.autohome.autolog4j.metric.contract.StatsdPoint;
 import com.autohome.autolog4j.metric.utils.MetricUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by NFW on 2018/5/7.
  */
 @ExceptionWrapper(toType = MetricCollectException.class)
 public class LogStatsdClient implements IStatsdClient {
-    private Logger client;
+    private Consumer<String> sendSink;
     private double sampleRate = 1.0;
     private Map<String, String> commonTags = new TreeMap<>();
 
     private LogStatsdClient() {
     }
 
-    public static Builder client(String loggerName) {
-        return new Builder(loggerName);
+    public static Builder client(Consumer<String> sendSink) {
+        return new Builder(sendSink);
     }
 
     @Override
@@ -167,7 +166,7 @@ public class LogStatsdClient implements IStatsdClient {
     @Override
     public void send(String message) {
         try {
-            client.trace(message);
+            sendSink.accept(message);
         } catch (Exception e) {
             throw new MetricCollectException("Error when sending metrics ", e);
         }
@@ -214,8 +213,8 @@ public class LogStatsdClient implements IStatsdClient {
         send(message.toString());
     }
 
-    public void setClient(Logger client) {
-        this.client = client;
+    public void setSendSink(Consumer<String> sendSink) {
+        this.sendSink = sendSink;
     }
 
     public void setSampleRate(double sampleRate) {
@@ -231,16 +230,15 @@ public class LogStatsdClient implements IStatsdClient {
     }
 
     public static final class Builder {
-        private final Logger client;
+        private final Consumer<String> sendSink;
         private final Map<String, String> commonTags = new TreeMap<>();
         private double sampleRate = 1.0;
 
         /**
-         * @param loggerName the loggerName to set
+         * @param sendSink the sendSink to set
          */
-        Builder(String loggerName) {
-            MetricUtil.validateNotNull(loggerName, "loggerName");
-            client = LoggerFactory.getLogger(loggerName);
+        Builder(Consumer<String> sendSink) {
+            this.sendSink = sendSink;
         }
 
         /**
@@ -317,7 +315,7 @@ public class LogStatsdClient implements IStatsdClient {
          */
         public LogStatsdClient build() {
             LogStatsdClient logStatsdClient = new LogStatsdClient();
-            logStatsdClient.setClient(client);
+            logStatsdClient.setSendSink(sendSink);
             logStatsdClient.setCommonTags(commonTags);
             logStatsdClient.setSampleRate(sampleRate);
             return logStatsdClient;
