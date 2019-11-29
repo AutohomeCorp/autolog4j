@@ -17,3 +17,4 @@
 * [访问日志](https://github.com/AutohomeCorp/autolog4j/wiki/web%E8%AE%BF%E9%97%AE%E6%97%A5%E5%BF%97)
 * [程序慢日志](https://github.com/AutohomeCorp/autolog4j/wiki/%E7%A8%8B%E5%BA%8F%E6%85%A2%E6%97%A5%E5%BF%97)
 * [nxlog安装](https://github.com/AutohomeCorp/autolog4j/wiki/nxlog%E5%AE%89%E8%A3%85)
+* [时序数据指标采集](https://github.com/AutohomeCorp/autolog4j/wiki/%E6%97%B6%E5%BA%8F%E6%95%B0%E6%8D%AE%E6%8C%87%E6%A0%87%E9%87%87%E9%9B%86)
