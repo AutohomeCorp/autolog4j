@@ -44,7 +44,7 @@
         <guava.version>18.0</guava.version>
         <spring.base.version>4.3.16.RELEASE</spring.base.version>
         <log4j1.version>1.2.16</log4j1.version>
-        <jackson.version>2.10.1</jackson.version>
+        <jackson.version>2.10.5.1</jackson.version>
         <jodatime.version>2.10.5</jodatime.version>
         <commons-lang3.version>3.4</commons-lang3.version>
     </properties>
