@@ -42,7 +42,7 @@
         <aspectjlib.version>1.6.2</aspectjlib.version>
         <slf4j-api.version>1.7.12</slf4j-api.version>
         <guava.version>18.0</guava.version>
-        <spring.base.version>4.3.16.RELEASE</spring.base.version>
+        <spring.base.version>5.3.18</spring.base.version>
         <log4j1.version>1.2.16</log4j1.version>
         <jackson.version>2.10.1</jackson.version>
         <jodatime.version>2.10.5</jodatime.version>
